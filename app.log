@@ -1,0 +1,17 @@
+nohup: ignoring input
+[2025-09-15 23:34:17 +0000] [16649] [INFO] Starting gunicorn 21.2.0
+[2025-09-15 23:34:17 +0000] [16649] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-15 23:34:17 +0000] [16649] [ERROR] Retrying in 1 second.
+[2025-09-15 23:34:18 +0000] [16649] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-15 23:34:18 +0000] [16649] [ERROR] Retrying in 1 second.
+[2025-09-15 23:34:19 +0000] [16649] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-15 23:34:19 +0000] [16649] [ERROR] Retrying in 1 second[2025-09-15 23:38:06 +0000] [16636] [INFO] Handling signal: hup
+[2025-09-15 23:38:06 +0000] [16636] [INFO] Hang up: Master
+[2025-09-15 23:38:06 +0000] [16636] [ERROR] Worker (pid:16640) was sent SIGHUP!
+[2025-09-15 23:38:06 +0000] [16636] [ERROR] Worker (pid:16641) was sent SIGHUP!
+[2025-09-15 23:38:06 +0000] [16636] [ERROR] Worker (pid:16642) was sent SIGHUP!
+[2025-09-15 23:38:06 +0000] [16636] [ERROR] Worker (pid:16643) was sent SIGHUP!
+[2025-09-15 23:38:06 +0000] [16673] [INFO] Booting worker with pid: 16673
+[2025-09-15 23:38:06 +0000] [16674] [INFO] Booting worker with pid: 16674
+[2025-09-15 23:38:06 +0000] [16675] [INFO] Booting worker with pid: 16675
+[2025-09-15 23:38:06 +0000] [16676] [INFO] Booting worker with pid: 16676

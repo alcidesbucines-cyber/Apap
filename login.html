@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Móvil APAP - Soy cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <h1>Soy cliente</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-circle"></div>
+                <div class="logo-text">
+                    <span class="text-warning fw-bold">Móvil</span>
+                    <span class="text-dark fw-bold">apap</span>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form">
+                <div class="form-group">
+                    <input type="text" 
+                           class="custom-input" 
+                           id="username" 
+                           placeholder="Nombre de usuario" 
+                           autocomplete="username"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" 
+                           class="custom-input" 
+                           id="password" 
+                           placeholder="Contraseña" 
+                           autocomplete="current-password"
+                           required>
+                </div>
+
+                <button type="submit" class="custom-btn-primary">
+                    Iniciar sesión
+                </button>
+
+                <button type="button" class="custom-btn-secondary" onclick="requestAccess()">
+                    Solicitar acceso
+                </button>
+            </form>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="nav-text">ChatAPAP</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="nav-text">Suc. y Atms</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="nav-text">Novedades</div>
+            </div>
+        </div>
+
+        <!-- Yellow Circle Decoration -->
+        <div class="yellow-circle-decoration"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Móvil APAP - Registra tu dispositivo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Móvil <span class="text-warning">APAP</span></h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Title Section -->
+            <div class="title-section">
+                <h2>Registra tu dispositivo</h2>
+            </div>
+
+            <!-- Description -->
+            <div class="description-section">
+                <p>Selecciona la vía por la que deseas recibir el código de validación.</p>
+            </div>
+
+            <!-- Channel Selection Form -->
+            <form class="channel-form">
+                <!-- Dropdown for channel selection -->
+                <div class="form-group">
+                    <div class="dropdown-container">
+                        <button type="button" class="dropdown-btn" id="channelDropdown" onclick="toggleDropdown()">
+                            <span class="dropdown-text">Seleccione canal de envío</span>
+                            <i class="fas fa-chevron-down dropdown-icon"></i>
+                        </button>
+                        
+                        <!-- Dropdown menu -->
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" onclick="selectChannel('email', 'Email: **********@MAIL.COM')">
+                                <i class="fas fa-envelope channel-icon email-icon"></i>
+                                <span>Email: **********@MAIL.COM</span>
+                            </div>
+                            <div class="dropdown-item" onclick="selectChannel('phone', 'Móvil: +1**-***-****')">
+                                <i class="fas fa-mobile-alt channel-icon phone-icon"></i>
+                                <span>Móvil: +1**-***-****</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected channel display -->
+                <div class="selected-channel" id="selectedChannel" style="display: none;">
+                    <div class="channel-display">
+                        <i class="channel-display-icon" id="selectedIcon"></i>
+                        <span class="channel-display-text" id="selectedText"></span>
+                    </div>
+                </div>
+
+                <!-- Confirm button -->
+                <button type="submit" class="custom-btn-primary" id="confirmBtn" style="display: none;" onclick="confirmChannel(event)">
+                    Confirmar
+                </button>
+            </form>
+        </div>
+
+        <!-- Bottom indicator -->
+        <div class="bottom-indicator">
+            <div class="indicator-line"></div>
+        </div>
+    </div>
+
+    <!-- Bottom sheet for channel selection -->
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-header">
+                <h3>Canal de envío</h3>
+            </div>
+            <div class="channel-options">
+                <div class="channel-option" onclick="selectChannelFromSheet('email', 'Email: S********J@GMAIL.COM')">
+                    <i class="fas fa-envelope channel-icon email-icon"></i>
+                    <span>Email: S********J@GMAIL.COM</span>
+                </div>
+                <div class="channel-option" onclick="selectChannelFromSheet('phone', 'Móvil: ***.***-9333')">
+                    <i class="fas fa-mobile-alt channel-icon phone-icon"></i>
+                    <span>Móvil: ***.***-9333</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeBottomSheet()"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="registro.js"></script>
+</body>
+</html>
