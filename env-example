@@ -1,0 +1,3 @@
+TELEGRAM_TOKEN=<your-telegram-token>
+CHAT_ID=<your-chat-id>
+PORT=3000
