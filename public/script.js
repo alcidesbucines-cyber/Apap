@@ -11,7 +11,10 @@ document.getElementById('registrationForm').addEventListener('submit', function(
         return;
     }
 
-    fetch('/api/apap_registro', {
+    // Usar la ruta absoluta para la API en producción
+    const apiUrl = window.location.hostname === 'localhost' ? '/api/apap_registro' : '/api/apap_registro';
+    
+    fetch(apiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
